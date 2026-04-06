@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "command": "/path/to/saengsation/skill/hooks.sh working"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "command": "/path/to/saengsation/skill/hooks.sh working"
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "command": "/path/to/saengsation/skill/hooks.sh waiting"
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "command": "/path/to/saengsation/skill/hooks.sh idle"
+      }
+    ]
+  }
+}
