@@ -1,0 +1,5 @@
+# Saengsation - RGB LED control for Keychron V7
+# Install: sudo cp 99-saengsation.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules && sudo udevadm trigger
+
+# Keychron V7 (QMK/VIA)
+KERNEL=="hidraw*", ATTRS{idVendor}=="3434", ATTRS{idProduct}=="0370", MODE="0660", GROUP="plugdev"
