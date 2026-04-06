@@ -1,10 +1,10 @@
-.PHONY: help install setup setup-udev setup-group check demo status clean
+.PHONY: help install setup setup-udev setup-group hooks check demo status clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-install: ## Install Python dependencies
-	@bash scripts/install.sh
+install: ## Install Python dependencies (with hidraw backend)
+	@bash scripts/install-hidraw.sh
 
 setup: ## Full setup (group, udev, deps)
 	@bash scripts/setup.sh
@@ -19,6 +19,9 @@ setup-group: ## Create plugdev group and add current user
 	@if ! getent group plugdev >/dev/null 2>&1; then sudo groupadd plugdev; fi
 	sudo usermod -aG plugdev $$(whoami)
 	@echo "Added $$(whoami) to plugdev. Log out/in or run: newgrp plugdev"
+
+hooks: ## Install Claude Code hooks into ~/.claude/settings.json
+	@bash scripts/install-hooks.sh
 
 check: ## Check dependencies and device access
 	@bash scripts/check-deps.sh

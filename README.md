@@ -13,7 +13,7 @@ Control your keyboard lighting from the command line, define named states for di
 git clone git@github.com:mbarlow/saengsation.git
 cd saengsation
 
-# Setup (creates plugdev group, installs udev rules, installs deps)
+# Setup (creates plugdev group, installs udev rules, builds hidraw backend)
 make setup
 
 # Log out and back in for group permissions, or:
@@ -23,7 +23,10 @@ newgrp plugdev
 make check
 
 # Try it
-saengsation state set focus
+uv run saengsation state set focus
+
+# Optional: install Claude Code hooks
+make hooks
 ```
 
 ## Install
@@ -33,14 +36,18 @@ saengsation state set focus
 - Linux (tested on Arch)
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) package manager
-- `hidapi` system library (`sudo pacman -S hidapi`)
+- `hidapi` system library with hidraw support:
+  - Arch: `sudo pacman -S hidapi`
+  - Debian/Ubuntu: `sudo apt install libhidapi-hidraw0 libhidapi-dev`
+  - Fedora: `sudo dnf install hidapi-devel`
+- Build tools: `gcc`, `pkg-config`, `git` (for building the hidraw Python module)
 - Keychron V7 keyboard (USB, QMK firmware)
 
 ### Step by Step
 
 ```bash
-# Install Python deps
-uv sync
+# Install Python deps and build hidraw backend
+make install
 
 # Create plugdev group and add yourself
 sudo groupadd plugdev
@@ -56,43 +63,50 @@ sudo udevadm trigger
 
 Or just run `make setup` which does all of the above.
 
+> **Why hidraw?** The `hidapi` pip package ships with a libusb backend that
+> requires root to detach the kernel driver. `make install` builds it from
+> source against the system `libhidapi-hidraw` library, which uses
+> `/dev/hidraw*` devices permissioned via udev rules — no root needed.
+
 ## Usage
+
+All commands below use `uv run` to run within the project environment. If you activate the venv (`source .venv/bin/activate`), you can omit the `uv run` prefix.
 
 ### Direct Control
 
 ```bash
 # Show keyboard status
-saengsation status
+uv run saengsation status
 
 # Set effect
-saengsation kb effect breathing
-saengsation kb effect digital_rain
-saengsation kb effect 5
+uv run saengsation kb effect breathing
+uv run saengsation kb effect digital_rain
+uv run saengsation kb effect 5
 
 # Set color (hue, saturation, brightness — each 0-255)
-saengsation kb color 85,255,200       # green
-saengsation kb color 0,255,255        # red
-saengsation kb color 170,255          # blue (keeps current brightness)
+uv run saengsation kb color 85,255,200       # green
+uv run saengsation kb color 0,255,255        # red
+uv run saengsation kb color 170,255          # blue (keeps current brightness)
 
 # Brightness and speed
-saengsation kb brightness 128
-saengsation kb speed 2                # 0-3
+uv run saengsation kb brightness 128
+uv run saengsation kb speed 2                # 0-3
 
 # Save to EEPROM (persists across unplugs)
-saengsation kb effect breathing --save
+uv run saengsation kb effect breathing --save
 
 # List all effects
-saengsation effects
+uv run saengsation effects
 ```
 
 ### Animations
 
 ```bash
-saengsation animate cycle                # rainbow color cycle
-saengsation animate police               # red/blue flash
-saengsation animate pulse --hue 170      # blue pulse
-saengsation animate flash --hue 0        # red strobe
-saengsation animate cycle --duration 30  # 30 seconds
+uv run saengsation animate cycle                # rainbow color cycle
+uv run saengsation animate police               # red/blue flash
+uv run saengsation animate pulse --hue 170      # blue pulse
+uv run saengsation animate flash --hue 0        # red strobe
+uv run saengsation animate cycle --duration 30  # 30 seconds
 ```
 
 ### Named States
@@ -101,23 +115,23 @@ States are presets that bundle an effect, color, brightness, and speed into a si
 
 ```bash
 # List all states
-saengsation state list
+uv run saengsation state list
 
 # Apply a state
-saengsation state set focus
-saengsation state set matrix
+uv run saengsation state set focus
+uv run saengsation state set matrix
 
 # Apply and save to EEPROM
-saengsation state set night --save
+uv run saengsation state set night --save
 
 # View state details
-saengsation state show focus
+uv run saengsation state show focus
 
 # Save current keyboard settings as a new state
-saengsation state save mystate -d "Purple haze for coding"
+uv run saengsation state save mystate -d "Purple haze for coding"
 
 # Delete a custom state
-saengsation state delete mystate
+uv run saengsation state delete mystate
 ```
 
 ### Built-in States
@@ -176,48 +190,28 @@ Saengsation includes a Claude Code skill and hooks that change your keyboard lig
 
 ### Setup Hooks
 
-Add to your Claude Code settings (`~/.claude/settings.json`):
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "",
-        "command": "/absolute/path/to/saengsation/skill/hooks.sh working"
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "",
-        "command": "/absolute/path/to/saengsation/skill/hooks.sh working"
-      }
-    ],
-    "Notification": [
-      {
-        "matcher": "",
-        "command": "/absolute/path/to/saengsation/skill/hooks.sh waiting"
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "command": "/absolute/path/to/saengsation/skill/hooks.sh idle"
-      }
-    ]
-  }
-}
+```bash
+make hooks
 ```
 
-Replace `/absolute/path/to/saengsation` with your actual clone path. A template is in `skill/claude-settings-example.json`.
+This merges saengsation hooks into `~/.claude/settings.json` with the correct paths for your clone. Restart Claude Code for hooks to take effect.
+
+Requires `jq` if you have existing settings (to safely merge). A template is also available at `skill/claude-settings-example.json` for manual setup.
 
 ### Install the Skill
 
-Copy or symlink `skill/saengsation.md` into your Claude Code skills directory so Claude can control your keyboard directly:
+Copy the skill into your project's `.claude/skills/` directory:
 
 ```bash
-# Example: link into project-level skills
-ln -s /path/to/saengsation/skill/saengsation.md .claude/skills/saengsation.md
+mkdir -p .claude/skills/saengsation
+cp skill/saengsation.md .claude/skills/saengsation/SKILL.md
+```
+
+Or for global availability across all projects:
+
+```bash
+mkdir -p ~/.claude/skills/saengsation
+cp skill/saengsation.md ~/.claude/skills/saengsation/SKILL.md
 ```
 
 ### Example Prompts
@@ -264,6 +258,8 @@ saengsation/
 ├── scripts/
 │   ├── check-deps.sh            # Verify deps and permissions
 │   ├── setup.sh                 # Full setup
+│   ├── install-hidraw.sh        # Build hidapi with hidraw backend
+│   ├── install-hooks.sh         # Install Claude Code hooks
 │   ├── install.sh               # Install Python deps
 │   ├── demo.sh                  # Demo animations
 │   └── demo-states.sh           # Demo all states
@@ -280,10 +276,11 @@ saengsation/
 
 ```
 make help          Show all targets
-make setup         Full setup (group, udev, deps)
+make setup         Full setup (group, udev, deps, hidraw backend)
 make setup-udev    Install udev rules only
 make setup-group   Create plugdev group and add user
-make install       Install Python dependencies
+make install       Install Python dependencies (with hidraw backend)
+make hooks         Install Claude Code hooks into ~/.claude/settings.json
 make check         Verify dependencies and device access
 make demo          Run demo animations
 make status        Show keyboard status

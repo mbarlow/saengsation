@@ -72,6 +72,31 @@ else
     warn "Keychron V7 not detected (not plugged in?)"
 fi
 
+# Python hidapi backend
+echo
+echo "Checking Python hidapi backend..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+PYTHON="$PROJECT_DIR/.venv/bin/python"
+if [ -f "$PYTHON" ]; then
+    HID_SO="$("$PYTHON" -c 'import importlib.util; print(importlib.util.find_spec("hid").origin)' 2>/dev/null || true)"
+    if [ -n "$HID_SO" ]; then
+        if ldd "$HID_SO" 2>/dev/null | grep -q libhidapi-hidraw; then
+            ok "hidapi using hidraw backend"
+        elif ldd "$HID_SO" 2>/dev/null | grep -q libusb; then
+            fail "hidapi using libusb backend (needs root) — run: make install"
+            ((errors++))
+        else
+            warn "could not determine hidapi backend"
+        fi
+    else
+        fail "Python hid module not installed — run: make install"
+        ((errors++))
+    fi
+else
+    warn "venv not found — run: make install"
+fi
+
 # hidraw permissions
 echo
 echo "Checking hidraw access..."
