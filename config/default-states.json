@@ -1,0 +1,90 @@
+{
+  "focus": {
+    "description": "Calm blue breathing for deep work",
+    "effect": "breathing",
+    "hue": 170,
+    "sat": 255,
+    "brightness": 120,
+    "speed": 1
+  },
+  "alert": {
+    "description": "Red flash — something needs attention",
+    "effect": "solid",
+    "hue": 0,
+    "sat": 255,
+    "brightness": 255,
+    "speed": 0
+  },
+  "chill": {
+    "description": "Slow rainbow cycle",
+    "effect": "cycle_all",
+    "hue": 0,
+    "sat": 255,
+    "brightness": 150,
+    "speed": 1
+  },
+  "meeting": {
+    "description": "Lights off — no distractions",
+    "effect": "off",
+    "hue": 0,
+    "sat": 0,
+    "brightness": 0,
+    "speed": 0
+  },
+  "music": {
+    "description": "Rainbow beacon party mode",
+    "effect": "rainbow_beacon",
+    "hue": 0,
+    "sat": 255,
+    "brightness": 200,
+    "speed": 3
+  },
+  "night": {
+    "description": "Dim warm white for dark rooms",
+    "effect": "solid",
+    "hue": 20,
+    "sat": 180,
+    "brightness": 40,
+    "speed": 0
+  },
+  "matrix": {
+    "description": "Green digital rain",
+    "effect": "digital_rain",
+    "hue": 85,
+    "sat": 255,
+    "brightness": 200,
+    "speed": 2
+  },
+  "waiting": {
+    "description": "Claude is waiting for your input — red pulse",
+    "effect": "solid",
+    "hue": 0,
+    "sat": 255,
+    "brightness": 200,
+    "speed": 0
+  },
+  "acknowledged": {
+    "description": "Claude received input — green fade",
+    "effect": "breathing",
+    "hue": 85,
+    "sat": 255,
+    "brightness": 200,
+    "speed": 2
+  },
+  "working": {
+    "description": "Claude is working — rainbow swirl",
+    "effect": "cycle_spiral",
+    "hue": 0,
+    "sat": 255,
+    "brightness": 180,
+    "speed": 3
+  },
+  "idle": {
+    "description": "Nothing happening — slow blue pulse",
+    "effect": "breathing",
+    "hue": 160,
+    "sat": 150,
+    "brightness": 60,
+    "speed": 0
+  }
+}
