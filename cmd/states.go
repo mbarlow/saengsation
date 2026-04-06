@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-//go:embed config/default-states.json
+//go:embed default-states.json
 var defaultStatesJSON []byte
 
 // State represents a named keyboard lighting preset.
