@@ -56,12 +56,12 @@
     "speed": 2
   },
   "waiting": {
-    "description": "Claude is waiting for your input — red pulse",
-    "effect": "solid",
-    "hue": 0,
+    "description": "Claude is waiting for your input — amber breathing",
+    "effect": "breathing",
+    "hue": 14,
     "sat": 255,
     "brightness": 200,
-    "speed": 0
+    "speed": 1
   },
   "acknowledged": {
     "description": "Claude received input — green fade",
