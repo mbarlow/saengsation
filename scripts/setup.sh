@@ -28,13 +28,10 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger
 echo "  Udev rules installed and reloaded."
 
-# Python deps
+# Python deps + hidraw backend
 echo "Installing Python dependencies..."
-cd "$PROJECT_DIR"
-REAL_HOME="$(getent passwd "${SUDO_USER:-$USER}" | cut -d: -f6)"
-UV="${UV:-$(command -v uv || echo "$REAL_HOME/.local/bin/uv")}"
-"$UV" sync
-echo "  Python dependencies installed."
+bash "$SCRIPT_DIR/install-hidraw.sh"
+echo "  Python dependencies installed (hidraw backend)."
 
 echo
 echo "Setup complete. If you were added to plugdev, log out/in or run:"
