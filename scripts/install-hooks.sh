@@ -35,6 +35,17 @@ HOOKS_JSON=$(cat <<EOF
       "hooks": [
         {
           "type": "command",
+          "command": "$HOOKS_SH waiting"
+        }
+      ]
+    }
+  ],
+  "PostToolUse": [
+    {
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "command",
           "command": "$HOOKS_SH working"
         }
       ]
@@ -102,7 +113,8 @@ fi
 echo ""
 echo "Hooks installed. Claude Code will now change your keyboard lighting:"
 echo "  UserPromptSubmit → acknowledged (green breathing)"
-echo "  PreToolUse       → working (rainbow spiral)"
+echo "  PreToolUse       → waiting (solid red — permission prompts)"
+echo "  PostToolUse      → working (rainbow spiral)"
 echo "  Stop             → idle (dim blue pulse)"
 echo "  Notification     → waiting (solid red)"
 echo ""
