@@ -13,30 +13,19 @@ fail() { echo -e "  ${RED}[NO]${NC}  $1"; }
 
 errors=0
 
-echo "Checking saengsation dependencies..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+BINARY="$PROJECT_DIR/saengsation"
+
+echo "Checking saengsation setup..."
 echo
 
-# uv
-if command -v uv &>/dev/null; then
-    ok "uv $(uv --version 2>/dev/null | head -1)"
+# Binary
+echo "Checking binary..."
+if [ -x "$BINARY" ]; then
+    ok "saengsation binary found"
 else
-    fail "uv not found — install from https://docs.astral.sh/uv/"
-    ((errors++))
-fi
-
-# Python
-if command -v python3 &>/dev/null; then
-    ok "python3 $(python3 --version 2>&1 | awk '{print $2}')"
-else
-    fail "python3 not found"
-    ((errors++))
-fi
-
-# hidapi system library
-if ldconfig -p 2>/dev/null | grep -q libhidapi || pacman -Qi hidapi &>/dev/null 2>&1; then
-    ok "hidapi system library"
-else
-    fail "hidapi not found — install: sudo pacman -S hidapi"
+    fail "saengsation binary not found — run: make build"
     ((errors++))
 fi
 
@@ -72,31 +61,6 @@ else
     warn "Keychron V7 not detected (not plugged in?)"
 fi
 
-# Python hidapi backend
-echo
-echo "Checking Python hidapi backend..."
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-PYTHON="$PROJECT_DIR/.venv/bin/python"
-if [ -f "$PYTHON" ]; then
-    HID_SO="$("$PYTHON" -c 'import importlib.util; print(importlib.util.find_spec("hid").origin)' 2>/dev/null || true)"
-    if [ -n "$HID_SO" ]; then
-        if ldd "$HID_SO" 2>/dev/null | grep -q libhidapi-hidraw; then
-            ok "hidapi using hidraw backend"
-        elif ldd "$HID_SO" 2>/dev/null | grep -q libusb; then
-            fail "hidapi using libusb backend (needs root) — run: make install"
-            ((errors++))
-        else
-            warn "could not determine hidapi backend"
-        fi
-    else
-        fail "Python hid module not installed — run: make install"
-        ((errors++))
-    fi
-else
-    warn "venv not found — run: make install"
-fi
-
 # hidraw permissions
 echo
 echo "Checking hidraw access..."
@@ -111,8 +75,8 @@ done
 
 echo
 if [ "$errors" -gt 0 ]; then
-    echo -e "${RED}$errors required dependency missing.${NC}"
+    echo -e "${RED}$errors issue(s) found.${NC}"
     exit 1
 else
-    echo -e "${GREEN}All required dependencies found.${NC}"
+    echo -e "${GREEN}All checks passed.${NC}"
 fi

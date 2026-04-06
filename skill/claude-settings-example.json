@@ -17,6 +17,17 @@
         "hooks": [
           {
             "type": "command",
+            "command": "/path/to/saengsation/skill/hooks.sh waiting"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
             "command": "/path/to/saengsation/skill/hooks.sh working"
           }
         ]
