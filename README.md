@@ -176,33 +176,53 @@ Saengsation includes a Claude Code skill and hooks that change your keyboard lig
 
 ### Setup Hooks
 
-Add to your Claude Code settings (`~/.claude/settings.json`):
+Add to your Claude Code settings (`~/.claude/settings.json`). Merge the `hooks` key with any existing settings:
 
 ```json
 {
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/absolute/path/to/saengsation/skill/hooks.sh acknowledged"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "",
-        "command": "/absolute/path/to/saengsation/skill/hooks.sh working"
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "",
-        "command": "/absolute/path/to/saengsation/skill/hooks.sh working"
-      }
-    ],
-    "Notification": [
-      {
-        "matcher": "",
-        "command": "/absolute/path/to/saengsation/skill/hooks.sh waiting"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/absolute/path/to/saengsation/skill/hooks.sh working"
+          }
+        ]
       }
     ],
     "Stop": [
       {
         "matcher": "",
-        "command": "/absolute/path/to/saengsation/skill/hooks.sh idle"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/absolute/path/to/saengsation/skill/hooks.sh idle"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/absolute/path/to/saengsation/skill/hooks.sh waiting"
+          }
+        ]
       }
     ]
   }
@@ -213,11 +233,18 @@ Replace `/absolute/path/to/saengsation` with your actual clone path. A template 
 
 ### Install the Skill
 
-Copy or symlink `skill/saengsation.md` into your Claude Code skills directory so Claude can control your keyboard directly:
+Copy the skill into your project's `.claude/skills/` directory:
 
 ```bash
-# Example: link into project-level skills
-ln -s /path/to/saengsation/skill/saengsation.md .claude/skills/saengsation.md
+mkdir -p .claude/skills/saengsation
+cp skill/saengsation.md .claude/skills/saengsation/SKILL.md
+```
+
+Or for global availability across all projects:
+
+```bash
+mkdir -p ~/.claude/skills/saengsation
+cp skill/saengsation.md ~/.claude/skills/saengsation/SKILL.md
 ```
 
 ### Example Prompts

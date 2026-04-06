@@ -1,27 +1,47 @@
 {
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/path/to/saengsation/skill/hooks.sh acknowledged"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "",
-        "command": "/path/to/saengsation/skill/hooks.sh working"
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "",
-        "command": "/path/to/saengsation/skill/hooks.sh working"
-      }
-    ],
-    "Notification": [
-      {
-        "matcher": "",
-        "command": "/path/to/saengsation/skill/hooks.sh waiting"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/path/to/saengsation/skill/hooks.sh working"
+          }
+        ]
       }
     ],
     "Stop": [
       {
         "matcher": "",
-        "command": "/path/to/saengsation/skill/hooks.sh idle"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/path/to/saengsation/skill/hooks.sh idle"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/path/to/saengsation/skill/hooks.sh waiting"
+          }
+        ]
       }
     ]
   }
