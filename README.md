@@ -13,7 +13,10 @@ Control your keyboard lighting from the command line, define named states for di
 git clone git@github.com:mbarlow/saengsation.git
 cd saengsation
 
-# Setup (creates plugdev group, installs udev rules, builds hidraw backend)
+# Build
+make build
+
+# Setup (creates plugdev group, installs udev rules)
 make setup
 
 # Log out and back in for group permissions, or:
@@ -23,7 +26,7 @@ newgrp plugdev
 make check
 
 # Try it
-uv run saengsation state set focus
+./saengsation state set focus
 
 # Optional: install Claude Code hooks
 make hooks
@@ -34,20 +37,16 @@ make hooks
 ### Requirements
 
 - Linux (tested on Arch)
-- Python 3.12+
-- [uv](https://docs.astral.sh/uv/) package manager
-- `hidapi` system library with hidraw support:
-  - Arch: `sudo pacman -S hidapi`
-  - Debian/Ubuntu: `sudo apt install libhidapi-hidraw0 libhidapi-dev`
-  - Fedora: `sudo dnf install hidapi-devel`
-- Build tools: `gcc`, `pkg-config`, `git` (for building the hidraw Python module)
+- [Go](https://go.dev/) 1.22+
 - Keychron V7 keyboard (USB, QMK firmware)
+
+That's it. No Python, no pip, no C libraries, no build tools beyond Go.
 
 ### Step by Step
 
 ```bash
-# Install Python deps and build hidraw backend
-make install
+# Build the binary
+go build -o saengsation .
 
 # Create plugdev group and add yourself
 sudo groupadd plugdev
@@ -63,50 +62,43 @@ sudo udevadm trigger
 
 Or just run `make setup` which does all of the above.
 
-> **Why hidraw?** The `hidapi` pip package ships with a libusb backend that
-> requires root to detach the kernel driver. `make install` builds it from
-> source against the system `libhidapi-hidraw` library, which uses
-> `/dev/hidraw*` devices permissioned via udev rules — no root needed.
-
 ## Usage
-
-All commands below use `uv run` to run within the project environment. If you activate the venv (`source .venv/bin/activate`), you can omit the `uv run` prefix.
 
 ### Direct Control
 
 ```bash
 # Show keyboard status
-uv run saengsation status
+./saengsation status
 
 # Set effect
-uv run saengsation kb effect breathing
-uv run saengsation kb effect digital_rain
-uv run saengsation kb effect 5
+./saengsation kb effect breathing
+./saengsation kb effect digital_rain
+./saengsation kb effect 5
 
 # Set color (hue, saturation, brightness — each 0-255)
-uv run saengsation kb color 85,255,200       # green
-uv run saengsation kb color 0,255,255        # red
-uv run saengsation kb color 170,255          # blue (keeps current brightness)
+./saengsation kb color 85,255,200       # green
+./saengsation kb color 0,255,255        # red
+./saengsation kb color 170,255          # blue (keeps current brightness)
 
 # Brightness and speed
-uv run saengsation kb brightness 128
-uv run saengsation kb speed 2                # 0-3
+./saengsation kb brightness 128
+./saengsation kb speed 2                # 0-3
 
 # Save to EEPROM (persists across unplugs)
-uv run saengsation kb effect breathing --save
+./saengsation kb effect breathing --save
 
 # List all effects
-uv run saengsation effects
+./saengsation effects
 ```
 
 ### Animations
 
 ```bash
-uv run saengsation animate cycle                # rainbow color cycle
-uv run saengsation animate police               # red/blue flash
-uv run saengsation animate pulse --hue 170      # blue pulse
-uv run saengsation animate flash --hue 0        # red strobe
-uv run saengsation animate cycle --duration 30  # 30 seconds
+./saengsation animate cycle                # rainbow color cycle
+./saengsation animate police               # red/blue flash
+./saengsation animate pulse --hue 170      # blue pulse
+./saengsation animate flash --hue 0        # red strobe
+./saengsation animate cycle --duration 30  # 30 seconds
 ```
 
 ### Named States
@@ -115,23 +107,23 @@ States are presets that bundle an effect, color, brightness, and speed into a si
 
 ```bash
 # List all states
-uv run saengsation state list
+./saengsation state list
 
 # Apply a state
-uv run saengsation state set focus
-uv run saengsation state set matrix
+./saengsation state set focus
+./saengsation state set matrix
 
 # Apply and save to EEPROM
-uv run saengsation state set night --save
+./saengsation state set night --save
 
 # View state details
-uv run saengsation state show focus
+./saengsation state show focus
 
 # Save current keyboard settings as a new state
-uv run saengsation state save mystate -d "Purple haze for coding"
+./saengsation state save mystate -d "Purple haze for coding"
 
 # Delete a custom state
-uv run saengsation state delete mystate
+./saengsation state delete mystate
 ```
 
 ### Built-in States
@@ -152,13 +144,12 @@ uv run saengsation state delete mystate
 
 ### Custom States
 
-Default states live in `config/default-states.json`. User overrides are stored in `~/.config/saengsation/states.json`.
+Default states are embedded in the binary from `config/default-states.json`. User overrides are stored in `~/.config/saengsation/states.json`.
 
 To add your own states, either:
 
-1. **Edit the defaults** — add entries to `config/default-states.json`
-2. **Save from CLI** — set the keyboard how you like it, then `saengsation state save mystate -d "description"`
-3. **Edit user config** — create/edit `~/.config/saengsation/states.json`:
+1. **Save from CLI** — set the keyboard how you like it, then `./saengsation state save mystate -d "description"`
+2. **Edit user config** — create/edit `~/.config/saengsation/states.json`:
 
 ```json
 {
@@ -228,7 +219,7 @@ Once the skill is installed, you can tell Claude:
 
 ### Customize the Lifecycle
 
-Edit the states in `config/default-states.json` to change what each Claude activity looks like. For example, to make the "working" state a green wave instead of rainbow spiral:
+Edit the states in `config/default-states.json` and rebuild to change what each Claude activity looks like. For example, to make the "working" state a green wave instead of rainbow spiral:
 
 ```json
 {
@@ -247,20 +238,17 @@ Edit the states in `config/default-states.json` to change what each Claude activ
 
 ```
 saengsation/
+├── main.go                      # CLI entry point
+├── keychron.go                  # Keychron V7 VIA v10 HID protocol
+├── states.go                    # State loading/saving (embeds defaults)
+├── effects.go                   # QMK RGB Matrix effect definitions
+├── go.mod
 ├── config/
 │   └── default-states.json      # Built-in state definitions
-├── saengsation/
-│   ├── __init__.py
-│   ├── __main__.py
-│   ├── cli.py                   # CLI entry point
-│   ├── keychron.py              # Keychron V7 VIA v10 HID protocol
-│   └── states.py                # State loading/saving
 ├── scripts/
-│   ├── check-deps.sh            # Verify deps and permissions
+│   ├── check-deps.sh            # Verify setup and permissions
 │   ├── setup.sh                 # Full setup
-│   ├── install-hidraw.sh        # Build hidapi with hidraw backend
 │   ├── install-hooks.sh         # Install Claude Code hooks
-│   ├── install.sh               # Install Python deps
 │   ├── demo.sh                  # Demo animations
 │   └── demo-states.sh           # Demo all states
 ├── skill/
@@ -268,21 +256,21 @@ saengsation/
 │   ├── hooks.sh                 # Claude Code event hooks
 │   └── claude-settings-example.json
 ├── 99-saengsation.rules         # udev rules
-├── Makefile
-└── pyproject.toml
+└── Makefile
 ```
 
 ## Make Targets
 
 ```
 make help          Show all targets
-make setup         Full setup (group, udev, deps, hidraw backend)
+make build         Build the saengsation binary
+make setup         Full setup (build, group, udev)
 make setup-udev    Install udev rules only
 make setup-group   Create plugdev group and add user
-make install       Install Python dependencies (with hidraw backend)
 make hooks         Install Claude Code hooks into ~/.claude/settings.json
-make check         Verify dependencies and device access
+make check         Verify setup and device access
 make demo          Run demo animations
+make demo-states   Cycle through built-in states
 make status        Show keyboard status
 make clean         Remove build artifacts
 ```
@@ -290,6 +278,8 @@ make clean         Remove build artifacts
 ## Technical Notes
 
 - Communicates via QMK VIA protocol v10 (0x0A) over raw HID (interface 1, usage page 0xFF60)
+- Opens `/dev/hidrawN` directly — no HID library or C bindings needed
+- Device discovered by scanning sysfs for matching VID:PID and interface number
 - Colors use HSV (hue 0-255, saturation 0-255). Brightness is separate (0-255). Speed is 0-3.
 - `--save` persists to keyboard EEPROM. Without it, settings revert on unplug.
 - Per-key RGB is not available via the stock VIA protocol (would require custom QMK firmware).

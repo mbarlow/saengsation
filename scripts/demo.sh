@@ -4,16 +4,12 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-cd "$PROJECT_DIR"
-
-REAL_HOME="$(getent passwd "${SUDO_USER:-$USER}" | cut -d: -f6)"
-UV="${UV:-$(command -v uv || echo "$REAL_HOME/.local/bin/uv")}"
-SAENGSATION="$UV run saengsation"
+S="$PROJECT_DIR/saengsation"
 
 run() {
     echo
     echo ">>> saengsation $*"
-    $SAENGSATION "$@"
+    "$S" "$@"
 }
 
 echo "=== Saengsation Demo ==="
@@ -59,7 +55,7 @@ sleep 0.5
 # Reset to a calm state
 echo
 echo "--- Resetting to breathing effect ---"
-$SAENGSATION kb effect breathing 2>/dev/null || true
+"$S" kb effect breathing 2>/dev/null || true
 
 echo
 echo "Demo complete!"
