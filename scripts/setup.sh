@@ -4,7 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-RULES_FILE="$PROJECT_DIR/99-saengsation.rules"
+RULES_FILE="$PROJECT_DIR/config/99-saengsation.rules"
 
 echo "=== Saengsation Setup ==="
 echo
@@ -12,7 +12,7 @@ echo
 # Build
 echo "Building saengsation..."
 cd "$PROJECT_DIR"
-go build -o saengsation .
+go build -o saengsation ./cmd
 echo "  Binary built: $PROJECT_DIR/saengsation"
 
 # plugdev group

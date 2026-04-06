@@ -1,4 +1,4 @@
-.PHONY: help build setup setup-udev setup-group hooks check demo demo-states status clean
+.PHONY: help build test setup setup-udev setup-group hooks check demo demo-states status clean
 
 BINARY := saengsation
 
@@ -7,7 +7,10 @@ help: ## Show this help
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 build: ## Build the saengsation binary
-	go build -o $(BINARY) .
+	go build -o $(BINARY) ./cmd
+
+test: ## Run unit tests
+	go test -v ./cmd
 
 setup: build setup-group setup-udev ## Full setup (build, group, udev)
 	@echo ""
@@ -15,7 +18,7 @@ setup: build setup-group setup-udev ## Full setup (build, group, udev)
 	@echo "Test with: ./$(BINARY) status"
 
 setup-udev: ## Install udev rules
-	sudo cp 99-saengsation.rules /etc/udev/rules.d/
+	sudo cp config/99-saengsation.rules /etc/udev/rules.d/
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger
 	@echo "Udev rules installed."

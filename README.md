@@ -46,14 +46,14 @@ That's it. No Python, no pip, no C libraries, no build tools beyond Go.
 
 ```bash
 # Build the binary
-go build -o saengsation .
+go build -o saengsation ./cmd
 
 # Create plugdev group and add yourself
 sudo groupadd plugdev
 sudo usermod -aG plugdev $USER
 
 # Install udev rules (allows non-root HID access)
-sudo cp 99-saengsation.rules /etc/udev/rules.d/
+sudo cp config/99-saengsation.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 
@@ -144,7 +144,7 @@ States are presets that bundle an effect, color, brightness, and speed into a si
 
 ### Custom States
 
-Default states are embedded in the binary from `config/default-states.json`. User overrides are stored in `~/.config/saengsation/states.json`.
+Default states are embedded in the binary from `cmd/default-states.json`. User overrides are stored in `~/.config/saengsation/states.json`.
 
 To add your own states, either:
 
@@ -219,7 +219,7 @@ Once the skill is installed, you can tell Claude:
 
 ### Customize the Lifecycle
 
-Edit the states in `config/default-states.json` and rebuild to change what each Claude activity looks like. For example, to make the "working" state a green wave instead of rainbow spiral:
+Edit the states in `cmd/default-states.json` and rebuild to change what each Claude activity looks like. For example, to make the "working" state a green wave instead of rainbow spiral:
 
 ```json
 {
@@ -238,25 +238,26 @@ Edit the states in `config/default-states.json` and rebuild to change what each 
 
 ```
 saengsation/
-├── main.go                      # CLI entry point
-├── keychron.go                  # Keychron V7 VIA v10 HID protocol
-├── states.go                    # State loading/saving (embeds defaults)
-├── effects.go                   # QMK RGB Matrix effect definitions
 ├── go.mod
-├── config/
+├── Makefile
+├── cmd/
+│   ├── main.go                  # CLI entry point
+│   ├── keychron.go              # Keychron V7 VIA v10 HID protocol
+│   ├── states.go                # State loading/saving (embeds defaults)
+│   ├── effects.go               # QMK RGB Matrix effect definitions
 │   └── default-states.json      # Built-in state definitions
+├── config/
+│   └── 99-saengsation.rules     # udev rules
 ├── scripts/
 │   ├── check-deps.sh            # Verify setup and permissions
 │   ├── setup.sh                 # Full setup
 │   ├── install-hooks.sh         # Install Claude Code hooks
 │   ├── demo.sh                  # Demo animations
 │   └── demo-states.sh           # Demo all states
-├── skill/
-│   ├── saengsation.md           # Claude Code skill definition
-│   ├── hooks.sh                 # Claude Code event hooks
-│   └── claude-settings-example.json
-├── 99-saengsation.rules         # udev rules
-└── Makefile
+└── skill/
+    ├── saengsation.md           # Claude Code skill definition
+    ├── hooks.sh                 # Claude Code event hooks
+    └── claude-settings-example.json
 ```
 
 ## Make Targets
