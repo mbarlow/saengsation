@@ -4,6 +4,8 @@ RGB LED controller for Keychron V7 on Linux, with Claude Code integration.
 
 *แสง (saeng) = light + sensation*
 
+![Keychron V7 with saengsation](keys.jpg)
+
 Control your keyboard lighting from the command line, define named states for different activities, and let Claude Code change your keyboard colors based on what it's doing.
 
 ## Quickstart
