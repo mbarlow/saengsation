@@ -176,7 +176,7 @@ Saengsation includes a Claude Code skill and hooks that change your keyboard lig
 
 | Claude Activity | Keyboard State | Visual |
 |----------------|---------------|--------|
-| Waiting for your input | `waiting` | Solid red |
+| Waiting for your input | `waiting` | Amber breathing fade |
 | Received your input | `acknowledged` | Green breathing fade |
 | Working (tool calls, thinking) | `working` | Rainbow spiral |
 | Idle / stopped | `idle` | Slow dim blue pulse |
