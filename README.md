@@ -278,6 +278,20 @@ make status        Show keyboard status
 make clean         Remove build artifacts
 ```
 
+## Troubleshooting
+
+### Keyboard looks dead when plugged into another machine
+
+Saengsation hooks set states without `--save`, so changes only live in RAM. When you unplug, the keyboard reverts to whatever is stored in EEPROM. If a dim or dark state (like `idle` at brightness 60, or `meeting` at brightness 0) was previously saved to EEPROM, the keyboard will appear dead on any machine without saengsation running.
+
+Fix it by saving a visible state to EEPROM:
+
+```bash
+./saengsation state set chill --save
+```
+
+Now the keyboard will boot into a bright rainbow cycle on any machine, regardless of whether saengsation is installed.
+
 ## Technical Notes
 
 - Communicates via QMK VIA protocol v10 (0x0A) over raw HID (interface 1, usage page 0xFF60)
